@@ -9,19 +9,18 @@ if not exist %product_installer_path% (
     mkdir %product_installer_path%;
 )
 cls
-goto main
-
-:main
 echo.
 echo Welcome to %product_name%
 echo ATTENTION: By using this tool you accept to the Minecraft eula (https://account.mojang.com/documents/minecraft_eula)
+goto main
+
+:main
 echo.
 echo What do you want to do?
 echo.
 echo [1] Create a new Server
 echo [2] Delete a Server
-echo [3] Edit a Server
-echo [4] Start a Server
+echo [3] Start a Server
 echo.
 set /p o=Enter a number from the list above:
 if "%o%" == "1" (
@@ -29,8 +28,6 @@ if "%o%" == "1" (
 ) else if "%o%" == "2" (
     goto deleteserver
 ) else if "%o%" == "3" (
-    goto editserver
-) else if "%o%" == "4" (
     goto startserver
 ) else (
     goto error
@@ -61,9 +58,10 @@ echo Choose a server Version!
 echo.
 set /p version=Enter the Spigot Version you want to install (e.g. 1.16.4):
 echo.
-echo Downloading Buildtools...
+echo Downloading...
 mkdir %product_installer_path%\%name%\temp
 powershell.exe Invoke-WebRequest -Uri https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar -OutFile %product_installer_path%\%name%\temp\BuildTools.jar
+powershell.exe Invoke-WebRequest -Uri https://raw.githubusercontent.com/MCTzOCK/MinecraftServerInstaller/main/defaults/start.bat -OutFile %product_installer_path%\%name%\start.bat
 cd %product_installer_path%\%name%\temp
 cls
 echo.
@@ -82,8 +80,34 @@ echo.
 goto main
 
 :deleteserver
-
-:editserver
+cls
+echo.
+echo Delete a Server
+echo.
+set /p name=Enter the name of the Server you want to delete:
+set /p y=Are you sure you want to delete %name% (this cant be undoed) [y/N]:
+if "%y%" == "y" (
+    if exist %product_installer_path%\%name% (
+        rmdir /S /Q %product_installer_path%\%name%
+        cls
+        echo.
+        echo Deleted!
+        echo.
+        goto main
+    ) else (
+        cls
+        echo.
+        echo Error! This Server does not exist!
+        echo.
+        goto main
+    )
+) else (
+    cls
+    echo.
+    echo Abort.
+    echo.
+    goto main
+)
 
 :startserver
 cls
@@ -94,6 +118,7 @@ set /p name=Enter the name of the Server:
 if exist %product_installer_path%\%name%\server.jar (
     cd %product_installer_path%\%name%
     start start.bat
+    cls
     goto main
 ) else (
     echo.
